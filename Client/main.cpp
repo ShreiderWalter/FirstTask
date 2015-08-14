@@ -64,6 +64,9 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR CmdLine, int CmdShow)
 		}
 	}
 
+	delete client;
+	client = nullptr;
+
 	return 0;
 }
 

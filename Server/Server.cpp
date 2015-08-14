@@ -11,13 +11,13 @@ void threadProgress(HANDLE hPipe)
 
 	char buffer[BUFFER_SIZE];
 	
-		fSuccess = ReadFile(hPipe, 
-			buffer,
-			BUFFER_SIZE,
-			&cbBytesRead,
-			nullptr);
+	fSuccess = ReadFile(hPipe, 
+		buffer,
+		BUFFER_SIZE,
+		&cbBytesRead,
+		nullptr);
 
-		printf("%s", buffer);
+		//printf("%s", buffer);
 
 	if(std::strcmp(buffer, "Hello\n") == 0)
 	{
@@ -32,7 +32,7 @@ void threadProgress(HANDLE hPipe)
 			}
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 			std::string tmp = "lights up" + std::to_string(color);
-			printf("%s", tmp.c_str());
+			//printf("%s", tmp.c_str());
 			prev_color = color;
 			fSuccess = WriteFile(hPipe,
 				tmp.c_str(),
@@ -54,12 +54,10 @@ void threadProgress(HANDLE hPipe)
 
 void Server::run()
 {
-	std::cout << "Waiting for new connections ... \n";
 	HANDLE hPipe = INVALID_HANDLE_VALUE;
 
 	while(true)
 	{
-		std::cout << "\n Connected ... \n";
 		hPipe = CreateNamedPipe(PIPE_NAME, 
 			PIPE_ACCESS_DUPLEX,
 			PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE |
@@ -72,7 +70,7 @@ void Server::run()
 
 		if (hPipe == INVALID_HANDLE_VALUE) 
 		{
-			printf("CreateNamedPipe failed, GLE=%d.\n", GetLastError()); 
+			//printf("CreateNamedPipe failed, GLE=%d.\n", GetLastError()); 
 			return;
 		}
 

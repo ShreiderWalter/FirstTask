@@ -63,7 +63,9 @@ void threadProgress(HANDLE hPipe)
 				Client::picked_color = Yellow; break;
 			}
 		}
+		//FlushFileBuffers(hPipe);
 	}
+	CloseHandle(hPipe);
 
 }
 
