@@ -1,6 +1,6 @@
 #include "Server.h"
 
-Server::Server()
+Server::Server() : hPipe(nullptr), flag(true)
 {
 }
 
@@ -54,9 +54,9 @@ void threadProgress(HANDLE hPipe)
 
 void Server::run()
 {
-	HANDLE hPipe = INVALID_HANDLE_VALUE;
+	hPipe = INVALID_HANDLE_VALUE;
 
-	while(true)
+	while(flag)
 	{
 		hPipe = CreateNamedPipe(PIPE_NAME, 
 			PIPE_ACCESS_DUPLEX,
@@ -84,5 +84,13 @@ void Server::run()
 			CloseHandle(hPipe);
 	}
 
+}
+
+void Server::killPipe()
+{
+	flag = false;
+	FlushFileBuffers(hPipe);
+	DisconnectNamedPipe(hPipe);
+	CloseHandle(hPipe);
 }
 

@@ -8,137 +8,136 @@
 	return 0;
 }*/
 
-/** Win Service API */
-SERVICE_STATUS_HANDLE g_ServiceStatusHandle;
-HANDLE g_StopEvent;
-DWORD g_CurrentState = 0;
-bool g_SystemShutdown = false;
+SERVICE_STATUS        g_ServiceStatus = {0};
+SERVICE_STATUS_HANDLE g_StatusHandle = nullptr;
+HANDLE                g_ServiceStopEvent = INVALID_HANDLE_VALUE;
+ 
+VOID WINAPI ServiceMain (DWORD argc, LPTSTR *argv);
+VOID WINAPI ServiceCtrlHandler (DWORD);
+DWORD WINAPI ServiceWorkerThread (LPVOID lpParam);
+ 
+#define SERVICE_NAME  _T("NewYearGarland") 
 
-void ReportStatus(DWORD state)
+int _tmain (int argc, TCHAR *argv[])
 {
-	g_CurrentState = state;
-	SERVICE_STATUS serviceStatus = 
-	{
-		SERVICE_WIN32_OWN_PROCESS,
-		g_CurrentState,
-		state == SERVICE_START_PENDING ? 0 : SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN,
-		NO_ERROR,
-		0,
-		0,
-		0,
-	};
-	SetServiceStatus(g_ServiceStatusHandle, &serviceStatus);
+    SERVICE_TABLE_ENTRY ServiceTable[] = 
+    {
+        {SERVICE_NAME, (LPSERVICE_MAIN_FUNCTION) ServiceMain},
+        {nullptr, nullptr}
+    };
+ 
+    if (StartServiceCtrlDispatcher (ServiceTable) == FALSE)
+    {
+        return GetLastError ();
+    }
+ 
+    return 0;
 }
 
-void ReportProgressStatus(DWORD state, DWORD checkPoint, DWORD waitHint)
+VOID WINAPI ServiceMain (DWORD argc, LPTSTR *argv)
 {
-	g_CurrentState = state;
-	SERVICE_STATUS serviceStatus = 
-	{
-		SERVICE_WIN32_OWN_PROCESS,
-		g_CurrentState,
-		state == SERVICE_START_PENDING ? 0 : SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN,
-		NO_ERROR,
-		0,
-		checkPoint,
-		waitHint,
-	};
-	SetServiceStatus(g_ServiceStatusHandle, &serviceStatus);
-}
+    DWORD Status = E_FAIL;
+ 
+    g_StatusHandle = RegisterServiceCtrlHandler (SERVICE_NAME, ServiceCtrlHandler);
+ 
+    if (g_StatusHandle == nullptr) 
+    {
+        return;
+    }
+ 
+    ZeroMemory (&g_ServiceStatus, sizeof (g_ServiceStatus));
+    g_ServiceStatus.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
+    g_ServiceStatus.dwControlsAccepted = 0;
+    g_ServiceStatus.dwCurrentState = SERVICE_START_PENDING;
+    g_ServiceStatus.dwWin32ExitCode = 0;
+    g_ServiceStatus.dwServiceSpecificExitCode = 0;
+    g_ServiceStatus.dwCheckPoint = 0;
+ 
+    if (SetServiceStatus (g_StatusHandle , &g_ServiceStatus) == FALSE)
+    {
+        OutputDebugString(_T("NewYearGarland: ServiceMain: SetServiceStatus returned error"));
+    }
+ 
+    g_ServiceStopEvent = CreateEvent (nullptr, TRUE, FALSE, nullptr);
+    if (g_ServiceStopEvent == nullptr) 
+    {   
+        g_ServiceStatus.dwControlsAccepted = 0;
+        g_ServiceStatus.dwCurrentState = SERVICE_STOPPED;
+        g_ServiceStatus.dwWin32ExitCode = GetLastError();
+        g_ServiceStatus.dwCheckPoint = 1;
+ 
+		if (SetServiceStatus (g_StatusHandle, &g_ServiceStatus) == FALSE)
+		{
+			OutputDebugString(_T("NewYearGarland: ServiceMain: SetServiceStatus returned error"));
+		}
+		return;
+    }    
+    
+    g_ServiceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP;
+    g_ServiceStatus.dwCurrentState = SERVICE_RUNNING;
+    g_ServiceStatus.dwWin32ExitCode = 0;
+    g_ServiceStatus.dwCheckPoint = 0;
+ 
+    if (SetServiceStatus (g_StatusHandle, &g_ServiceStatus) == FALSE)
+    {
+        OutputDebugString(_T("NewYearGarland: ServiceMain: SetServiceStatus returned error"));
+    }
 
-void ReportErrorStatus(DWORD errorCode)
+    HANDLE hThread = CreateThread (nullptr, 0, ServiceWorkerThread, nullptr, 0, nullptr);
+   
+    WaitForSingleObject (hThread, INFINITE);
+
+    CloseHandle (g_ServiceStopEvent);
+ 
+    g_ServiceStatus.dwControlsAccepted = 0;
+    g_ServiceStatus.dwCurrentState = SERVICE_STOPPED;
+    g_ServiceStatus.dwWin32ExitCode = 0;
+    g_ServiceStatus.dwCheckPoint = 3;
+ 
+    if (SetServiceStatus (g_StatusHandle, &g_ServiceStatus) == FALSE)
+    {
+        OutputDebugString(_T("NewYearGarland: ServiceMain: SetServiceStatus returned error"));
+    }
+} 
+
+VOID WINAPI ServiceCtrlHandler (DWORD CtrlCode)
 {
-	g_CurrentState = SERVICE_STOPPED;
-	SERVICE_STATUS serviceStatus = 
+    switch (CtrlCode) 
 	{
-		SERVICE_WIN32_OWN_PROCESS,
-		g_CurrentState,
-		0,
-		ERROR_SERVICE_SPECIFIC_ERROR,
-		errorCode,
-		0,
-		0,
-	};
-	SetServiceStatus(g_ServiceStatusHandle, &serviceStatus);
-}
+     case SERVICE_CONTROL_STOP :
+ 
+        if (g_ServiceStatus.dwCurrentState != SERVICE_RUNNING)
+           break;
+        
+        g_ServiceStatus.dwControlsAccepted = 0;
+        g_ServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
+        g_ServiceStatus.dwWin32ExitCode = 0;
+        g_ServiceStatus.dwCheckPoint = 4;
+ 
+        if (SetServiceStatus (g_StatusHandle, &g_ServiceStatus) == FALSE)
+        {
+            OutputDebugString(_T("NewYearGarland: ServiceCtrlHandler: SetServiceStatus returned error"));
+        }
+ 
+        SetEvent (g_ServiceStopEvent);
+ 
+        break;
+ 
+     default:
+         break;
+    }
+}  
 
-DWORD WINAPI HandlerEx(DWORD control, DWORD eventType, void *eventData, void *context)
+DWORD WINAPI ServiceWorkerThread (LPVOID lpParam)
 {
-	switch (control)
-	{
-		// Entrie system is shutting down.
-	case SERVICE_CONTROL_SHUTDOWN:
-		g_SystemShutdown = true;
+	std::thread thread(&Server::run, Server());
+	thread.detach();
 
-	case SERVICE_CONTROL_STOP:
-		ReportStatus(SERVICE_STOP_PENDING);
-		SetEvent(g_StopEvent);
-		break;
-		// Ignoring all other events, but we must always report service status.
-	default:
-		ReportStatus(g_CurrentState);
-		break;
-	}
-	return NO_ERROR;
-}
+    while (WaitForSingleObject(g_ServiceStopEvent, 0) != WAIT_OBJECT_0)
+    {        
+        Sleep(3000);
+    }
+ 
+    return ERROR_SUCCESS;
+} 
 
-void WINAPI ServiceMain(DWORD argc, LPTSTR * argv)
-{
-	g_ServiceStatusHandle = RegisterServiceCtrlHandlerEx(_T("NewYearGarland"), &HandlerEx, NULL);
-	ReportStatus(SERVICE_START_PENDING);
-	g_StopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-
-	Server server;
-	HANDLE hPipe = CreateNamedPipe(PIPE_NAME, 
-		PIPE_ACCESS_DUPLEX,
-		PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE |
-		PIPE_WAIT,
-		PIPE_UNLIMITED_INSTANCES,
-		BUFFER_SIZE,
-		BUFFER_SIZE,
-		0, 
-		nullptr);
-
-	ReportStatus(SERVICE_RUNNING);
-
-	DWORD cbBytesRead = 0, cbReplyBytes = 0, cbWritten = 0; 
-	BOOL fSuccess = FALSE;
-	char buffer[BUFFER_SIZE];
-	while(!fSuccess)
-	{
-		fSuccess = ReadFile(hPipe, 
-			buffer,
-			BUFFER_SIZE,
-			&cbBytesRead,
-			nullptr);
-	}
-
-	ReportStatus(SERVICE_STOP_PENDING);
-
-	CloseHandle(g_StopEvent);
-
-	ReportStatus(SERVICE_STOPPED);	
-}
-
-int main(int argc, char* argv[])
-{
-
-	SERVICE_TABLE_ENTRY serviceTable[] =
-	{
-		{ _T(""), &ServiceMain },
-		{ nullptr, nullptr }
-	};
-
-	if (StartServiceCtrlDispatcher(serviceTable))
-	{
-		return 0;
-	}
-	else if (GetLastError() == ERROR_FAILED_SERVICE_CONTROLLER_CONNECT)
-	{
-		return -1;
-	}
-	else
-	{
-		return -2;
-	}
-}

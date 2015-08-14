@@ -13,11 +13,13 @@
 class Server
 {
 private:
-
+	HANDLE hPipe;
+	bool flag;
 public:
 	Server();
 	void run();
 
+	void killPipe();
 };
 
 #endif //SERVER_H
