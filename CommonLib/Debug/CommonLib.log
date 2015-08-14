@@ -1,0 +1,33 @@
+﻿Build started 14.08.2015 18:25:01.
+Project "C:\Users\Shindows\Documents\Visual Studio 2012\Projects\FirstTask\CommonLib\CommonLib.vcxproj" on node 2 (Build target(s)).
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D COMMONLIB_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\CommonLib.pch" /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt PipeDll.cpp
+  PipeDll.cpp
+c:\users\shindows\documents\visual studio 2012\projects\firsttask\commonlib\pipedll.cpp(6): warning C4273: 'PipeLine::Message::Message' : inconsistent dll linkage
+          c:\users\shindows\documents\visual studio 2012\projects\firsttask\commonlib\pipedll.h(22) : see previous definition of '{ctor}'
+c:\users\shindows\documents\visual studio 2012\projects\firsttask\commonlib\pipedll.cpp(11): warning C4273: 'PipeLine::Message::Message' : inconsistent dll linkage
+          c:\users\shindows\documents\visual studio 2012\projects\firsttask\commonlib\pipedll.h(23) : see previous definition of '{ctor}'
+c:\users\shindows\documents\visual studio 2012\projects\firsttask\commonlib\pipedll.cpp(17): warning C4273: 'PipeLine::Message::Message' : inconsistent dll linkage
+          c:\users\shindows\documents\visual studio 2012\projects\firsttask\commonlib\pipedll.h(24) : see previous definition of '{ctor}'
+c:\users\shindows\documents\visual studio 2012\projects\firsttask\commonlib\pipedll.cpp(23): warning C4273: 'PipeLine::Message::Message' : inconsistent dll linkage
+          c:\users\shindows\documents\visual studio 2012\projects\firsttask\commonlib\pipedll.h(25) : see previous definition of '{ctor}'
+c:\users\shindows\documents\visual studio 2012\projects\firsttask\commonlib\pipedll.cpp(29): warning C4273: 'PipeLine::Message::~Message' : inconsistent dll linkage
+          c:\users\shindows\documents\visual studio 2012\projects\firsttask\commonlib\pipedll.h(26) : see previous definition of '{dtor}'
+c:\users\shindows\documents\visual studio 2012\projects\firsttask\commonlib\pipedll.cpp(35): warning C4273: 'PipeLine::Message::operator =' : inconsistent dll linkage
+          c:\users\shindows\documents\visual studio 2012\projects\firsttask\commonlib\pipedll.h(28) : see previous definition of '='
+c:\users\shindows\documents\visual studio 2012\projects\firsttask\commonlib\pipedll.cpp(44): warning C4273: 'PipeLine::Message::operator =' : inconsistent dll linkage
+          c:\users\shindows\documents\visual studio 2012\projects\firsttask\commonlib\pipedll.h(29) : see previous definition of '='
+c:\users\shindows\documents\visual studio 2012\projects\firsttask\commonlib\pipedll.cpp(50): warning C4273: 'PipeLine::Message::getBuffer' : inconsistent dll linkage
+          c:\users\shindows\documents\visual studio 2012\projects\firsttask\commonlib\pipedll.h(31) : see previous definition of 'getBuffer'
+Link:
+  C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Shindows\Documents\Visual Studio 2012\Projects\FirstTask\Debug\CommonLib.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Shindows\Documents\Visual Studio 2012\Projects\FirstTask\Debug\CommonLib.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Shindows\Documents\Visual Studio 2012\Projects\FirstTask\Debug\CommonLib.lib" /MACHINE:X86 /DLL Debug\CommonLib.obj
+  Debug\dllmain.obj
+  Debug\PipeDll.obj
+  Debug\stdafx.obj
+     Creating library C:\Users\Shindows\Documents\Visual Studio 2012\Projects\FirstTask\Debug\CommonLib.lib and object C:\Users\Shindows\Documents\Visual Studio 2012\Projects\FirstTask\Debug\CommonLib.exp
+  CommonLib.vcxproj -> C:\Users\Shindows\Documents\Visual Studio 2012\Projects\FirstTask\Debug\CommonLib.dll
+Done Building Project "C:\Users\Shindows\Documents\Visual Studio 2012\Projects\FirstTask\CommonLib\CommonLib.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:02.10
