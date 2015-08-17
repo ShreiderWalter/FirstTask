@@ -9,17 +9,15 @@ void threadProgress(HANDLE hPipe)
 	DWORD cbBytesRead = 0, cbReplyBytes = 0, cbWritten = 0; 
 	BOOL fSuccess = FALSE;
 
-	char buffer[BUFFER_SIZE];
+	PipeLine::Message buffer;
 	
 	fSuccess = ReadFile(hPipe, 
-		buffer,
+		buffer.getBuffer(),
 		BUFFER_SIZE,
 		&cbBytesRead,
 		nullptr);
 
-		//printf("%s", buffer);
-
-	if(std::strcmp(buffer, "Hello\n") == 0)
+	if(std::strcmp(buffer.getBuffer(), "Hello\n") == 0)
 	{
 		int prev_color = 0;
 		while(true)
@@ -70,7 +68,6 @@ void Server::run()
 
 		if (hPipe == INVALID_HANDLE_VALUE) 
 		{
-			//printf("CreateNamedPipe failed, GLE=%d.\n", GetLastError()); 
 			return;
 		}
 

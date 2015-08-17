@@ -1,11 +1,22 @@
 include_directories("${PROJECT_SOURCE_DIR}/CommonLib")
 
-file (GLOB SERVER_SOURCES	"*.h"
-				"*.cpp")
+set (HEADERS 
+"Server.h"
+"stdafx.h"
+)
 
-source_group("" FILES ${SERVER_SOURCES})
+set (SOURCES
+"Server.cpp"
+"main.cpp"
+)
 
-add_executable (Server ${SERVER_SOURCES})
+source_group("Header files" FILES ${HEADERS})
+
+source_group("Source files" FILES ${SOURCES})
+
+set (PROJECT_CONTENT ${SOURCES} ${HEADERS})
+
+add_executable (Server ${PROJECT_CONTENT})
 
 target_link_libraries(Server LIB)
 

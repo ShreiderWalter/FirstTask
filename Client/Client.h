@@ -9,6 +9,7 @@
 #include <Windows.h>
 #include <string>
 #include <thread>
+#include "stdafx.h"
 
 /** Available color palette */
 #define White RGB(255, 255, 255)
@@ -21,8 +22,6 @@
 /** Error messages*/
 #define CONNECTION_FAILED 1
 #define CONNECTION_CORRUPTED 2
-
-#define PIPE_NAME TEXT("\\\\.\\pipe\\Pipe")
 
 #define Show(Window) RedrawWindow(Window, 0, 0, 0); ShowWindow(Window, SW_SHOW);
 

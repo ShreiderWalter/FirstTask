@@ -15,6 +15,7 @@ class Server
 private:
 	HANDLE hPipe;
 	bool flag;
+
 public:
 	Server();
 	void run();

@@ -30,11 +30,12 @@ void threadProgress(HANDLE hPipe)
 {
 	DWORD cbBytesRead = 0;
 #define BUFFER_SIZE 1024
-	char buffer[BUFFER_SIZE];
+	PipeLine::Message buffer;
+
 	while(true)
 	{
 		BOOL fSuccess = ReadFile(hPipe, 
-				buffer,
+				buffer.getBuffer(),
 				BUFFER_SIZE,
 				&cbBytesRead,
 				nullptr);
@@ -44,10 +45,10 @@ void threadProgress(HANDLE hPipe)
 			Client::failed_error = CONNECTION_CORRUPTED;
 		}
 
-		if(std::strcmp(buffer, "lights up\n"))
+		if(std::strcmp(buffer.getBuffer(), "lights up\n"))
 		{
 
-			int color = (int)buffer[9];
+			int color = (int)buffer.getBuffer()[9];
 
 			switch(color)
 			{
@@ -71,11 +72,13 @@ void threadProgress(HANDLE hPipe)
 
 void Client::run()
 {
+#define SEND_SIZE 7
+	PipeLine::Message buffer("Hello\n", SEND_SIZE);
 	DWORD dwWritten;
 	BOOL fSuccess = FALSE;
 	fSuccess = WriteFile(hPipe,
-		"Hello\n",
-		7,
+		buffer.getBuffer(),
+		SEND_SIZE,
 		&dwWritten,
 		nullptr);
 	if(!fSuccess)
